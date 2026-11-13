@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大美四川 - 旅游与美食期末作业</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ================= 基础与动画 ================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Microsoft YaHei', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: #f4f6f9; color: #333; line-height: 1.6; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+        ul { list-style: none; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ================= 导航栏 ================= */
+        header { position: fixed; top: 0; width: 100%; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; background: rgba(0, 0, 0, 0.7); transition: all 0.4s ease; backdrop-filter: blur(8px); }
+        header.scrolled { background: rgba(255, 255, 255, 0.98); box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 10px 5%; }
+        .logo { color: #fff; font-size: 24px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        header.scrolled .logo, header.scrolled nav a { color: #333; }
+        nav ul { display: flex; gap: 25px; }
+        nav a { color: #fff; font-size: 16px; font-weight: 500; padding: 8px 15px; border-radius: 20px; transition: 0.3s; }
+        nav a:hover { color: #fff; background: #e74c3c; transform: translateY(-2px); }
+        header.scrolled nav a:hover { color: #fff; }
+
+        /* ================= 页面切换 ================= */
+        .page-view { display: none; min-height: calc(100vh - 80px); padding-top: 80px; animation: fadeIn 0.6s ease; }
+        .page-view.active { display: block; }
+
+        /* ================= 首页 ================= */
+        #home.page-view { padding-top: 0; height: 100vh; position: relative; }
+        #home.page-view.active { display: flex; align-items: center; justify-content: center; }
+        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: -1; background-image: url('1.jpg'); }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)); z-index: 0; }
+        .hero-content { position: relative; z-index: 1; text-align: center; color: #fff; animation: fadeInUp 1s ease; }
+        .hero-content h1 { font-size: 4rem; margin-bottom: 20px; letter-spacing: 8px; text-shadow: 2px 4px 10px rgba(0,0,0,0.5); }
+        .hero-content p { font-size: 1.4rem; margin-bottom: 40px; letter-spacing: 2px; opacity: 0.9; }
+        .btn-primary { display: inline-block; padding: 15px 40px; background: linear-gradient(45deg, #e74c3c, #ff7675); color: #fff; font-size: 1.2rem; border-radius: 30px; transition: 0.3s; border: none; cursor: pointer; box-shadow: 0 8px 15px rgba(231,76,60,0.4); }
+        .btn-primary:hover { transform: translateY(-5px); box-shadow: 0 12px 20px rgba(231,76,60,0.6); }
+
+        /* ================= 通用区块 ================= */
+        .section { padding: 60px 8% 100px; }
+        .bg-light { background-color: #fff; }
+        .section-header { text-align: center; margin-bottom: 60px; animation: fadeInUp 0.8s ease; }
+        .section-header h2 { font-size: 2.8rem; color: #2c3e50; margin-bottom: 15px; position: relative; display: inline-block; }
+        .section-header h2::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 60px; height: 4px; background: #e74c3c; border-radius: 2px; }
+        .section-header p { color: #7f8c8d; font-size: 1.1rem; margin-top: 20px; }
+
+        /* ================= 卡片 ================= */
+        .card-container, .food-grid, .route-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 35px; }
+        .card { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06); transition: all 0.4s ease; cursor: pointer; border: 1px solid #f0f0f0; }
+        .card:hover { transform: translateY(-15px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+        .card-img-wrapper { overflow: hidden; height: 240px; }
+        .card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .card:hover img { transform: scale(1.1); }
+        .card-content { padding: 25px; }
+        .card-content h3 { font-size: 1.5rem; margin-bottom: 10px; color: #2c3e50; }
+        .card-content p { color: #666; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.7; }
+        .read-more { color: #e74c3c; font-weight: bold; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .card:hover .read-more { gap: 15px; }
+
+        .food-card { position: relative; border-radius: 20px; overflow: hidden; height: 280px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .food-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .food-card:hover img { transform: scale(1.15); }
+        .food-info { position: absolute; bottom: 0; left: 0; width: 100%; padding: 30px 20px 20px; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); color: #fff; }
+        .food-info h3 { font-size: 1.4rem; margin-bottom: 5px; }
+        .food-info p { font-size: 0.9rem; opacity: 0.8; }
+
+        .route-card { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06); transition: all 0.4s ease; cursor: pointer; display: flex; flex-direction: column; border-left: 6px solid #e74c3c; }
+        .route-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+        .route-card img { width: 100%; height: 200px; object-fit: cover; transition: 0.5s; }
+        .route-card:hover img { opacity: 0.9; }
+        .route-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+        .route-content h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.4rem; }
+        .route-content p { color: #666; font-size: 0.95rem; margin-bottom: 15px; flex-grow: 1; }
+        .route-content span { display: inline-block; background: #fdf0ef; color: #e74c3c; padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: bold; margin-bottom: 15px; }
+
+        /* ================= 弹窗 ================= */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #fff; width: 90%; max-width: 650px; border-radius: 20px; overflow: hidden; position: relative; animation: fadeInUp 0.5s ease; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .modal-content img { width: 100%; height: 300px; object-fit: cover; }
+        .modal-text { padding: 35px; }
+        .modal-text h2 { color: #2c3e50; margin-bottom: 15px; font-size: 2rem; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .modal-text p { color: #555; margin-bottom: 10px; white-space: pre-line; font-size: 1.05rem; line-height: 1.8; text-align: justify; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; color: #fff; cursor: pointer; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: 0.3s; z-index: 10; }
+        .close-btn:hover { background: #e74c3c; transform: rotate(90deg); }
+
+        /* ================= 详情页 ================= */
+        #detail.page-view { padding: 100px 10% 60px; background: #f9f9f9; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 30px; color: #fff; background: #2c3e50; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; border: none; font-size: 1rem; }
+        .back-btn:hover { background: #e74c3c; transform: translateX(-5px); }
+        .detail-header img { width: 100%; height: 450px; object-fit: cover; border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.15); margin-bottom: 40px; }
+        .detail-title { font-size: 3rem; color: #2c3e50; margin-bottom: 30px; }
+        .detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 50px; }
+        .detail-main p { font-size: 1.1rem; color: #444; margin-bottom: 20px; text-align: justify; text-indent: 2em; line-height: 1.8; }
+        .detail-main h3 { font-size: 1.6rem; margin: 35px 0 20px; color: #2c3e50; border-left: 6px solid #e74c3c; padding-left: 15px; }
+        .guide-box { background: #fff; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); height: fit-content; position: sticky; top: 100px; }
+        .guide-box h3 { margin-bottom: 25px; color: #2c3e50; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 15px; font-size: 1.4rem; }
+        .guide-item { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed #ddd; }
+        .guide-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .guide-item i { color: #e74c3c; margin-right: 12px; width: 25px; font-size: 1.2rem; text-align: center; }
+        .guide-item strong { display: block; margin-bottom: 8px; color: #333; font-size: 1.1rem; }
+        .guide-item span { color: #666; font-size: 1rem; line-height: 1.6; display: block; }
+
+        footer { background: #2c3e50; color: #ecf0f1; text-align: center; padding: 50px 20px; }
+        footer p { margin: 8px 0; opacity: 0.8; font-size: 0.95rem; }
+
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 2.5rem; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .guide-box { position: static; }
+            header { flex-direction: column; gap: 15px; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 导航 -->
+    <header id="navbar">
+        <div class="logo" onclick="switchPage('home')"><i class="fas fa-mountain"></i> 大美四川</div>
+        <nav>
+            <ul>
+                <li><a onclick="switchPage('home')">首页</a></li>
+                <li><a onclick="switchPage('attractions')">热门景点</a></li>
+                <li><a onclick="switchPage('food')">特色美食</a></li>
+                <li><a onclick="switchPage('routes')">经典路线</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 1. 首页 -->
+    <div id="home" class="page-view active">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>天府之国 · 锦绣四川</h1>
+            <p>探索雪山、草地、大熊猫与麻辣美食的奇妙之旅</p>
+            <button class="btn-primary" onclick="switchPage('attractions')">开启探索之旅 <i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- 2. 景点页 -->
+    <div id="attractions" class="page-view">
+        <div class="section">
+            <div class="section-header"><h2>热门旅游景点</h2><p>点击卡片查看详细指南</p></div>
+            <div class="card-container">
+                <div class="card" onclick="showDetail(1)"><div class="card-img-wrapper"><img src="1.jpg"></div><div class="card-content"><h3>九寨沟</h3><p>童话世界，人间仙境，翠海叠瀑。</p><div class="read-more">查看指南 <i class="fas fa-arrow-right"></i></div></div></div>
+                <div class="card" onclick="showDetail(2)"><div class="card-img-wrapper"><img src="2.jpg"></div><div class="card-content"><h3>峨眉山</h3><p>云海佛光，秀甲天下，佛教名山。</p><div class="read-more">查看指南 <i class="fas fa-arrow-right"></i></div></div></div>
+                <div class="card" onclick="showDetail(3)"><div class="card-img-wrapper"><img src="3.jpg"></div><div class="card-content"><h3>大熊猫基地</h3><p>近距离接触国宝，感受四川的可爱。</p><div class="read-more">查看指南 <i class="fas fa-arrow-right"></i></div></div></div>
+                <div class="card" onclick="showDetail(4)"><div class="card-img-wrapper"><img src="4.jpg"></div><div class="card-content"><h3>都江堰</h3><p>千年水利，润泽天府，世界遗产。</p><div class="read-more">查看指南 <i class="fas fa-arrow-right"></i></div></div></div>
+                <div class="card" onclick="showDetail(5)"><div class="card-img-wrapper"><img src="5.jpg"></div><div class="card-content"><h3>稻城亚丁</h3><p>蓝色星球上最后一片净土。</p><div class="read-more">查看指南 <i class="fas fa-arrow-right"></i></div></div></div>
+                <div class="card" onclick="showDetail(6)"><div class="card-img-wrapper"><img src="6.jpg"></div><div class="card-content"><h3>乐山大佛</h3><p>山是一尊佛，佛是一座山。</p><div class="read-more">查看指南 <i class="fas fa-arrow-right"></i></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 美食页 -->
+    <div id="food" class="page-view">
+        <div class="section bg-light">
+            <div class="section-header"><h2>舌尖上的四川</h2><p>点击卡片查看美食介绍</p></div>
+            <div class="food-grid">
+                <div class="food-card" onclick="showModal('四川火锅', '麻辣鲜香，欲罢不能。红油翻滚的锅底，搭配毛肚、鸭肠，是四川人的灵魂美食。', '7.jpg')"><img src="7.jpg"><div class="food-info"><h3>四川火锅</h3><p>麻辣鲜香，欲罢不能</p></div></div>
+                <div class="food-card" onclick="showModal('串串香', '火锅的另一种形式。各种食材串在竹签上，想吃什么拿什么，按签计费，市井气息浓厚。', '8.jpg')"><img src="8.jpg"><div class="food-info"><h3>串串香</h3><p>火锅的另一种形式</p></div></div>
+                <div class="food-card" onclick="showModal('担担面', '面条细薄，卤汁酥香。相传由自贡小贩陈包包始创，因挑担叫卖而得名，咸鲜微辣。', '9.jpg')"><img src="9.jpg"><div class="food-info"><h3>担担面</h3><p>面条细薄，卤汁酥香</p></div></div>
+                <div class="food-card" onclick="showModal('麻婆豆腐', '麻辣烫嫩，川菜代表。由陈麻婆首创，突出麻、辣、烫、香、酥、嫩、鲜、活八字箴言。', '10.jpg')"><img src="10.jpg"><div class="food-info"><h3>麻婆豆腐</h3><p>麻辣烫嫩，川菜代表</p></div></div>
+                <div class="food-card" onclick="showModal('回锅肉', '肥而不腻，色香味俱全。选用猪后腿肉，先煮后炒，是川菜之首。', '11.jpg')"><img src="11.jpg"><div class="food-info"><h3>回锅肉</h3><p>肥而不腻，色香味俱全</p></div></div>
+                <div class="food-card" onclick="showModal('钟水饺', '皮薄肉嫩，微甜带咸。全用猪肉馅，上桌时淋上特制红油，风味独特。', '12.jpg')"><img src="12.jpg"><div class="food-info"><h3>钟水饺</h3><p>皮薄肉嫩，微甜带咸</p></div></div>
+                <div class="food-card" onclick="showModal('夫妻肺片', '红油凉拌，质嫩味鲜。以牛头皮、牛心等为主料，卤制后切片凉拌，麻辣浓香。', '13.jpg')"><img src="13.jpg"><div class="food-info"><h3>夫妻肺片</h3><p>红油凉拌，质嫩味鲜</p></div></div>
+                <div class="food-card" onclick="showModal('甜水面', '面条粗壮，甜辣爽口。面条有筷子头那么粗，入口有嚼劲，风味独特。', '14.jpg')"><img src="14.jpg"><div class="food-info"><h3>甜水面</h3><p>面条粗壮，甜辣爽口</p></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 路线页 -->
+    <div id="routes" class="page-view">
+        <div class="section">
+            <div class="section-header"><h2>经典旅游路线</h2><p>点击卡片查看详细行程</p></div>
+            <div class="route-grid">
+                <div class="route-card" onclick="showModal('川西大环线5日游', 'Day 1：成都 - 四姑娘山\nDay 2：丹巴甲居藏寨\nDay 3：新都桥\nDay 4：稻城亚丁\nDay 5：返回成都', '15.jpg')">
+                    <img src="15.jpg"><div class="route-content"><h3>川西大环线5日游</h3><p>感受雪山与草原的壮丽，体验最极致的川西风光。</p><span>最佳季节：5-10月</span><div class="read-more">点击查看行程 <i class="fas fa-arrow-right"></i></div></div>
+                </div>
+                <div class="route-card" onclick="showModal('蜀南竹海2日游', 'Day 1：成都 - 宜宾 - 蜀南竹海\nDay 2：仙寓洞 - 七彩飞瀑 - 品全竹宴 - 返回成都', '16.jpg')">
+                    <img src="16.jpg"><div class="route-content"><h3>蜀南竹海2日游</h3><p>漫步翠绿竹林，品尝全竹宴，感受夏日清凉。</p><span>最佳季节：四季皆宜</span><div class="read-more">点击查看行程 <i class="fas fa-arrow-right"></i></div></div>
+                </div>
+                <div class="route-card" onclick="showModal('藏族风情与若尔盖大湿地', 'Day 1：成都 - 红原大草原\nDay 2：若尔盖大湿地（看九曲黄河第一湾日落）\nDay 3：体验藏族风情，寻找美丽的卓玛姑娘，喝酥油茶穿藏装', '17.jpg')">
+                    <img src="17.jpg"><div class="route-content"><h3>藏族风情体验游</h3><p>去若尔盖大湿地看九曲黄河，寻找美丽的卓玛姑娘。</p><span>最佳季节：6-9月</span><div class="read-more">点击查看行程 <i class="fas fa-arrow-right"></i></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. 景点详情页 -->
+    <div id="detail" class="page-view">
+        <button class="back-btn" onclick="switchPage('attractions')"><i class="fas fa-arrow-left"></i> 返回景点列表</button>
+        <div id="detail-content"></div>
+    </div>
+
+    <!-- 6. 弹窗 -->
+    <div id="globalModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <img id="modal-img" src="">
+            <div class="modal-text">
+                <h2 id="modal-title"></h2>
+                <p id="modal-desc"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 (已修改为小学生和2026年) -->
+    <footer><p>© 2026 大美四川旅游网 | 小学生网页设计期末作业</p></footer>
+
+    <script>
+        // 超长详细数据
+        const placesData = {
+            1: { 
+                title: "九寨沟", 
+                img: "1.jpg", 
+                desc: "九寨沟位于四川省阿坝藏族羌族自治州九寨沟县境内，是世界自然遗产、世界生物圈保护区、国家5A级旅游景区。因沟内有树正、荷叶、则查洼等九个藏族村寨而得名。景区内拥有泉、瀑、河、滩108个海子，构成了一个五彩斑斓的瑶池玉盆。翠海、叠瀑、彩林、雪峰、藏情、蓝冰被誉为“六绝”。这里的湖水清澈见底，因湖底钙华沉积和藻类分布不同，呈现出鹅黄、墨绿、深蓝、藏青等斑斓色彩，梦幻至极。", 
+                tips1: "经典游览路线：上午进入景区后乘观光车直达日则沟最高处，游览镜海、五花海、珍珠滩瀑布；中午在诺日朗中心用餐；下午前往则查洼沟游览长海和五彩池；傍晚顺着树正沟出景区，欣赏树正群海。", 
+                tips2: "五花海是九寨沟的精华所在，一定要去老虎嘴观景台俯瞰全景，拍出斑斓的“孔雀蓝”；诺日朗瀑布是国内最宽的钙化瀑布，极其壮观；镜海的倒影清晰如镜，最适合在清晨无风时拍摄。", 
+                tips3: "景区内海拔较高（2000-3000米），切勿剧烈运动，建议提前准备氧气瓶和红景天；沟内只有诺日朗中心有餐厅，价格较贵，建议自带干粮和保温杯；早晚温差极大，即使是夏天也要带厚外套。", 
+                traffic: "成都茶店子客运站每天有直达九寨沟的班车（约8小时）；或乘飞机至九黄机场，再转乘大巴。", 
+                ticket: "旺季（4-11月）190元，观光车90元；淡季80元，观光车80元。", 
+                time: "建议游玩 1-2 天" 
+            },
+            2: { 
+                title: "峨眉山", 
+                img: "2.jpg", 
+                desc: "峨眉山位于四川盆地西南边缘，是中国四大佛教名山之一，素有“峨眉天下秀”之称。主峰金顶海拔3099米，地势陡峭，风景秀丽。金顶四大奇观——云海、日出、佛光、圣灯，令无数游客心驰神往。峨眉山也是普贤菩萨的道场，山间古刹林立，报国寺、伏虎寺、万年寺等历史悠久，香火鼎盛。此外，山上的野生猴群也是峨眉山的一大特色，它们调皮可爱，经常向游客讨食，为旅途增添了许多野趣。", 
+                tips1: "经典两日游路线：第一天从报国寺出发，经清音阁、一线天、生态猴区，到万年寺住宿；第二天早起经雷洞坪乘索道直上金顶看日出和云海，下午下山。", 
+                tips2: "金顶的十方普贤圣像在阳光照耀下金光闪闪，是必拍地标；云海观景台可以拍到翻腾的云海；清音阁的双桥清音，水声潺潺，非常适合古风拍摄。", 
+                tips3: "千万不要手提塑料袋或外露食物，猴子会抢甚至伤人；不要逗弄猴子；金顶海拔高、气温低，租大衣比带厚衣服更划算；山上住宿紧张，看日出务必提前预定。", 
+                traffic: "成都东站乘高铁至峨眉山站（约1.5小时），出站转乘景区大巴直达报国寺。", 
+                ticket: "旺季160元，淡季110元；金顶索道上行65元，下行55元。", 
+                time: "建议游玩 2 天" 
+            },
+            3: { 
+                title: "大熊猫繁育基地", 
+                img: "3.jpg", 
+                desc: "成都大熊猫繁育研究基地是世界著名的大熊猫迁地保护基地、科研繁育基地。这里模拟了大熊猫野外生态环境，建有多个大熊猫别墅和活动场。基地内不仅生活着憨态可掬的大熊猫，还有小熊猫、黑颈鹤等珍稀动物。在这里，游客可以近距离观察大熊猫吃竹子、爬树、打闹的真实生活状态，甚至还能在月亮产房看到刚出生不久的粉色熊猫幼崽，是亲子游和动物爱好者的天堂。", 
+                tips1: "最佳游览路线：从大门进入后，直接乘坐观光车前往最里面的“月亮产房”和“太阳产房”，看刚出生的熊猫幼崽；然后沿着路线依次游览大熊猫别墅、小熊猫活动区。建议按“先里后外”的顺序游玩。", 
+                tips2: "大熊猫别墅的室外活动场是最佳拍摄点，可以拍到熊猫吃竹子的萌态；大熊猫博物馆前的大熊猫雕塑也是经典打卡位。建议携带长焦镜头。", 
+                tips3: "一定要早去！建议早上7:30开园就进去，因为大熊猫在早上最活跃，到了中午它们就睡觉了；园区很大，穿舒适的平底鞋；不要投喂动物，也不要使用闪光灯拍照。", 
+                traffic: "成都市区乘地铁3号线至熊猫大道站，出站转乘景区直通车；或直接打车前往。", 
+                ticket: "55元，学生票半价。", 
+                time: "建议游玩 半天" 
+            },
+            4: { 
+                title: "都江堰", 
+                img: "4.jpg", 
+                desc: "都江堰位于成都市都江堰市城西，是世界文化遗产、世界灌溉工程遗产。它是由战国时期秦国蜀郡太守李冰父子主持修建的大型水利工程，距今已有两千多年历史。都江堰由鱼嘴分水堤、飞沙堰溢洪道、宝瓶口引水口三大主体工程组成，科学地解决了江水自动分流、排沙、控制进水流量等问题，至今仍在发挥着巨大的防洪灌溉作用，孕育了“天府之国”。被誉为“世界水利文化的鼻祖”。", 
+                tips1: "经典路线推荐：离堆公园入口 -> 伏龙观 -> 宝瓶口 -> 飞沙堰 -> 鱼嘴 -> 安澜索桥 -> 二王庙 -> 玉垒山。这条路线可以完整了解都江堰的水利原理。", 
+                tips2: "安澜索桥横跨岷江，走在桥上摇摇晃晃，是拍照打卡的热门地；在玉垒阁俯瞰都江堰全景，非常壮观；夜晚的南桥“蓝眼泪”灯光秀更是刷爆朋友圈的绝美景观。", 
+                tips3: "都江堰与青城山相邻，建议安排一日游，上午都江堰，下午青城山；建议租用电子讲解器，否则只是看水利工程会觉得很无聊；南桥夜景在晚上8点左右最漂亮，不要错过。", 
+                traffic: "成都地铁2号线至犀浦站，换乘城际列车（约20分钟）至都江堰站，出站转公交。", 
+                ticket: "80元。", 
+                time: "建议游玩 半天" 
+            },
+            5: { 
+                title: "稻城亚丁", 
+                img: "5.jpg", 
+                desc: "稻城亚丁位于四川省甘孜藏族自治州稻城县香格里拉镇，被誉为“蓝色星球上最后一片净土”。这里汇集了雪山、冰川、峡谷、森林、草甸、湖泊等自然景观，主要由仙乃日、央迈勇、夏诺多吉三座神山和周围的河流、湖泊、高山草甸组成。牛奶海、五色海、珍珠海如同镶嵌在雪山之间的蓝宝石，纯净得令人窒息。这里是摄影爱好者的天堂，也是徒步者的圣地，每一步都是风景。", 
+                tips1: "经典路线推荐：进入景区后乘大巴至扎灌崩，徒步至冲古寺；短线前往珍珠海观仙乃日神山；长线乘电瓶车至洛绒牛场，徒步至牛奶海和五色海。长线徒步较辛苦，请根据体力选择。", 
+                tips2: "洛绒牛场是拍摄央迈勇神山的最佳位置；牛奶海在阳光照射下呈现出如牛奶般的浅蓝色，非常梦幻；冲古寺前的草甸和溪流也是经典的拍摄机位。", 
+                tips3: "稻城亚丁海拔4000米以上，极易高反，建议提前几天在康定或新都桥适应海拔，并备好氧气瓶和布洛芬；长线徒步往返约6-8小时，请备好高热量食物和雨衣；9-10月是最美的季节，但也是最冷的时候，必须带羽绒服。", 
+                traffic: "成都飞稻城亚丁机场（约1小时），再乘大巴至景区；或自驾走318国道，沿途风景绝美。", 
+                ticket: "旺季146元，观光车120元；电瓶车往返80元。", 
+                time: "建议游玩 2 天" 
+            },
+            6: { 
+                title: "乐山大佛", 
+                img: "6.jpg", 
+                desc: "乐山大佛位于四川省乐山市岷江、青衣江、大渡河三江汇流处，依凌云山栖霞峰临江峭壁凿造而成，是世界上最大的石刻弥勒佛坐像。大佛始建于唐玄宗开元初年，历经90年才完工。大佛通高71米，头高14.7米，耳长7米，肩宽24米。千百年来，大佛端坐江边，庇佑着过往船只和一方百姓，素有“山是一尊佛，佛是一座山”之美誉，其雄伟壮观令人叹为观止。", 
+                tips1: "游览路线推荐：从景区大门进入后，先走九曲栈道近距离仰视大佛，感受其雄伟；随后到凌云寺参观；最后到佛脚平台抱佛脚祈福。注意九曲栈道排队人多。", 
+                tips2: "乘船游览是最佳的全景拍摄方式，可以在江面上远观大佛全貌；在佛脚平台仰拍可以拍出大佛的巍峨；凌云山上的观景台也能拍出不错的照片。", 
+                tips3: "节假日九曲栈道排队时间可能长达2-3小时，建议早去或直接选择乘船游览（不爬山）；山上猴子较多，注意看管随身物品；乐山美食众多，如跷脚牛肉、甜皮鸭，一定不要错过。", 
+                traffic: "成都东站乘高铁至乐山站（约1小时），出站转乘公交或打车至景区。", 
+                ticket: "景区门票80元；游船票70元（游船不包含景区门票）。", 
+                time: "建议游玩 半天" 
+            }
+        };
+
+        // 页面切换核心逻辑
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-view').forEach(page => {
+                page.classList.remove('active');
+                page.style.display = 'none';
+            });
+            const target = document.getElementById(pageId);
+            if (target) {
+                target.style.display = 'block';
+                if(pageId === 'home') { target.style.display = 'flex'; }
+                setTimeout(() => { target.classList.add('active'); }, 10);
+            }
+            window.scrollTo(0, 0);
+        }
+
+        // 显示景点详情
+        function showDetail(id) {
+            const data = placesData[id];
+            if(!data) return;
+            document.getElementById('detail-content').innerHTML = `
+                <div class="detail-header"><img src="${data.img}"></div>
+                <h2 class="detail-title">${data.title}</h2>
+                <div class="detail-grid">
+                    <div class="detail-main">
+                        <h3>景点简介</h3>
+                        <p>${data.desc}</p>
+                        <h3>游玩建议</h3>
+                        <p><strong>🗺️ 路线推荐：</strong> ${data.tips1}</p>
+                        <p><strong>📸 拍照打卡：</strong> ${data.tips2}</p>
+                        <p><strong>💡 避坑指南：</strong> ${data.tips3}</p>
+                    </div>
+                    <div class="guide-box">
+                        <h3><i class="fas fa-info-circle"></i> 实用信息</h3>
+                        <div class="guide-item"><i class="fas fa-ticket-alt"></i><strong>门票价格</strong><span>${data.ticket}</span></div>
+                        <div class="guide-item"><i class="fas fa-bus"></i><strong>交通指南</strong><span>${data.traffic}</span></div>
+                        <div class="guide-item"><i class="fas fa-clock"></i><strong>游玩时长</strong><span>${data.time}</span></div>
+                    </div>
+                </div>
+            `;
+            switchPage('detail');
+        }
+
+        // 弹窗逻辑
+        function showModal(title, desc, img) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-img').src = img;
+            document.getElementById('globalModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('globalModal').style.display = 'none';
+        }
+        window.onclick = function(event) {
+            const modal = document.getElementById('globalModal');
+            if (event.target == modal) { modal.style.display = "none"; }
+        }
+
+        // 导航栏滚动变色
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('navbar');
+            if (window.scrollY > 50) { header.classList.add('scrolled'); } else { header.classList.remove('scrolled'); }
+        });
+    </script>
+</body>
+</html>
